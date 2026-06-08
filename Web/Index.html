@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+<title>Daniel ❤️ Vanesa</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#ffd6e8,#fff4f8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.caja{
+    background:white;
+    width:90%;
+    max-width:420px;
+    padding:35px;
+    border-radius:30px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.12);
+    z-index:10;
+}
+
+.corazon{
+    font-size:90px;
+    animation:latido 1.2s infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+@keyframes latido{
+    0%,100%{
+        transform:scale(1);
+    }
+    50%{
+        transform:scale(1.08);
+    }
+}
+
+h1{
+    color:#d6336c;
+    font-size:46px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.subtitulo{
+    color:#a84b6b;
+    font-size:18px;
+    font-weight:500;
+    font-style:italic;
+    letter-spacing:0.5px;
+}
+
+.contador{
+    margin:25px 0;
+}
+
+.contadorTitulo{
+    margin-top:20px;
+    margin-bottom:12px;
+    color:#c9184a;
+    font-size:18px;
+    font-weight:700;
+    font-family:'Poppins', Arial, sans-serif !important;
+    letter-spacing:0px;
+}
+
+#tiempo{
+    font-size:28px;
+    font-weight:bold;
+    color:#e63946;
+    line-height:1.4;
+}
+
+.botones{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.boton{
+    text-decoration:none;
+    background:#ff4d6d;
+    color:white;
+    padding:14px;
+    border-radius:20px;
+    font-size:18px;
+    transition:0.3s;
+}
+
+.boton:hover{
+    transform:scale(1.03);
+    box-shadow:0 5px 15px rgba(255,77,109,0.3);
+}
+
+.petalo{
+    position:absolute;
+    top:-50px;
+    font-size:30px;
+    animation:caer linear forwards;
+}
+
+@keyframes caer{
+    from{
+        transform:translateY(-50px) rotate(0deg);
+        opacity:1;
+    }
+
+    to{
+        transform:translateY(110vh) rotate(360deg);
+        opacity:0;
+    }
+}
+
+.footer{
+    margin-top:25px;
+    color:#d6336c;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:0.4px;
+}
+
+.subtitulo,
+.contadorTitulo,
+.footer{
+    font-family:'Playfair Display', serif;
+}
+
+#btnVada{
+
+    margin-top:12px;
+
+    border:none;
+    background:transparent;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+#btnVada:hover{
+    transform:scale(1.15);
+}
+
+#statsSecretas{
+
+    display:none;
+
+    margin-top:15px;
+
+    color:#c9184a;
+
+    font-weight:700;
+
+    line-height:1.8;
+}
+
+#contenedorVadas{
+    margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="caja">
+
+    <div class="corazon">❤️</div>
+
+    <h1>Dani & Vane</h1>
+
+    <div class="subtitulo">
+        Nuestro pequeño rincón
+    </div>
+
+    <div class="contador">
+
+        <div class="contadorTitulo">
+            Juntos desde el 1 de mayo de 2026
+        </div>
+
+        <div id="tiempo">
+            ...
+        </div>
+
+    </div>
+
+    <div class="botones">
+
+        <a href="jardin.html" class="boton">
+            🌷 Nuestro Jardín
+        </a>
+
+        <a href="cartas.html" class="boton">
+            💌 Nuestras Cartas
+        </a>
+
+    </div>
+    <div class="footer">
+        Te quiero muchoo mi vida ❤️
+    </div>
+
+    <button id="btnVada" onclick="toggleStats()">
+    🧸
+    </button>
+   <div id="statsSecretas">
+
+    <p>💌 Cartas escritas: <span id="totalCartas">0</span></p>
+
+    <p>🌷 Flores plantadas: <span id="totalFlores">0</span></p>
+
+    <div id="contenedorVadas"></div>
+
+
+    
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://wrbskndncjaqydebtbzx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WKLD7EYsaUU_htc4YMCCzw_MIMPdn6J";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const inicio = new Date("2026-05-01");
+
+function actualizarTiempo(){
+
+    const hoy = new Date();
+
+    let años = hoy.getFullYear() - inicio.getFullYear();
+    let meses = hoy.getMonth() - inicio.getMonth();
+    let dias = hoy.getDate() - inicio.getDate();
+
+    if(dias < 0){
+        meses--;
+
+        const ultimoMes = new Date(
+            hoy.getFullYear(),
+            hoy.getMonth(),
+            0
+        ).getDate();
+
+        dias += ultimoMes;
+    }
+
+    if(meses < 0){
+        años--;
+        meses += 12;
+    }
+
+    let texto = "";
+
+    if(años > 0){
+        texto += años + (años === 1 ? " año<br>" : " años<br>");
+    }
+
+    if(meses > 0){
+        texto += meses + (meses === 1 ? " mes<br>" : " meses<br>");
+    }
+
+    texto += dias + (dias === 1 ? " día" : " días");
+
+    document.getElementById("tiempo").innerHTML = texto;
+}
+
+function toggleStats(){
+
+    const panel =
+        document.getElementById("statsSecretas");
+
+    panel.style.display =
+        panel.style.display === "block"
+        ? "none"
+        : "block";
+
+}
+
+function actualizarVadas(){
+
+    const inicio =
+        new Date("2026-05-01");
+
+    const hoy =
+        new Date();
+
+    let años =
+        hoy.getFullYear()
+        - inicio.getFullYear();
+
+    if(
+        hoy.getMonth() < inicio.getMonth()
+        ||
+        (
+            hoy.getMonth() === inicio.getMonth()
+            &&
+            hoy.getDate() < inicio.getDate()
+        )
+    ){
+        años--;
+    }
+
+    if(años <= 0){
+        return;
+    }
+
+    const contenedor =
+        document.getElementById("contenedorVadas");
+
+    let osos = "";
+
+    for(let i=0;i<años;i++){
+        osos += "🧸 ";
+    }
+
+    contenedor.innerHTML = `
+        <p>🧸 Vadas conseguidos:</p>
+        <p style="font-size:26px;">
+            ${osos}
+        </p>
+    `;
+}
+
+actualizarVadas();
+
+actualizarTiempo();
+
+async function cargarEstadisticasSecretas(){
+
+    const { count: totalCartas, error: errorCartas } = await supabaseClient
+        .from("cartas")
+        .select("*", { count:"exact", head:true });
+
+    const { count: totalFlores, error: errorFlores } = await supabaseClient
+        .from("flores")
+        .select("*", { count:"exact", head:true });
+
+    if(errorCartas || errorFlores){
+        console.log(errorCartas || errorFlores);
+        return;
+    }
+
+    document.getElementById("totalCartas").innerText = totalCartas ?? 0;
+    document.getElementById("totalFlores").innerText = totalFlores ?? 0;
+}
+
+cargarEstadisticasSecretas();
+
+const flores = ["🌷","🌹"];
+
+function crearPetalo(){
+
+    const petalo = document.createElement("div");
+
+    petalo.className = "petalo";
+
+    petalo.innerText =
+        flores[Math.floor(Math.random()*flores.length)];
+
+    petalo.style.left =
+        Math.random()*100 + "vw";
+
+    petalo.style.animationDuration =
+        (6 + Math.random()*5) + "s";
+
+    petalo.style.fontSize =
+        (20 + Math.random()*20) + "px";
+
+    document.body.appendChild(petalo);
+
+    setTimeout(()=>{
+        petalo.remove();
+    },12000);
+}
+
+setInterval(crearPetalo,700);
+
+</script>
+
+</body>
+</html>

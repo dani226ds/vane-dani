@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nuestro Jardín 🌷</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    font-family:'Poppins', Arial, sans-serif;
+    background-image:url("data_web/jardin_montana.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(
+        rgba(255,255,255,0.05),
+        rgba(0,0,0,0.12)
+    );
+    pointer-events:none;
+}
+
+.header{
+    position:fixed;
+    top:20px;
+    left:20px;
+    right:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:50;
+}
+
+.titulo{
+    color:white;
+    font-size:28px;
+    font-weight:700;
+
+    text-shadow:
+        0 2px 10px rgba(0,0,0,0.4),
+        0 0 25px rgba(0,0,0,0.3);
+}
+
+.botones{
+    display:flex;
+    gap:10px;
+}
+
+.boton{
+    text-decoration:none;
+    color:white;
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(10px);
+    padding:12px 18px;
+    border-radius:25px;
+    font-weight:600;
+    border:1px solid rgba(255,255,255,0.25);
+    transition:0.3s;
+}
+
+.boton:hover{
+    transform:scale(1.05);
+}
+
+.jardin{
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
+.flor{
+    position:absolute;
+    width:28px;
+    height:28px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.florAnimada{
+    width:100%;
+    height:100%;
+    position:relative;
+    animation:viento 4s ease-in-out infinite;
+    transform-origin:bottom center;
+}
+
+.flor:hover{
+    filter:brightness(1.08);
+    z-index:999 !important;
+}
+
+@keyframes viento{
+    0%,100%{
+        transform:rotate(-2deg);
+    }
+
+    50%{
+        transform:rotate(2deg);
+    }
+}
+
+.flor::after{
+    content:"";
+    position:absolute;
+    bottom:-6px;
+    left:50%;
+    width:14px;
+    height:5px;
+    background:rgba(0,0,0,0.18);
+    border-radius:50%;
+    transform:translateX(-50%);
+}
+
+.tallo{
+    position:absolute;
+    bottom:-18px;
+    left:50%;
+    width:3px;
+    height:20px;
+    background:#3f7c43;
+    transform:translateX(-50%);
+    z-index:-1;
+}
+
+.nota{
+    position:absolute;
+    bottom:55px;
+    left:50%;
+    transform:translateX(-50%);
+    min-width:230px;
+    max-width:270px;
+    background:white;
+    color:#444;
+    padding:14px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    display:none;
+    z-index:1000;
+}
+
+.nota h3{
+    color:#d6336c;
+    margin-bottom:8px;
+    font-size:17px;
+}
+
+.nota .meta{
+    color:#888;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.nota p{
+    line-height:1.5;
+    font-size:15px;
+}
+
+.flor.activa .nota{
+    display:block;
+}
+
+.flor.muriendo{
+    opacity:0.65;
+    filter:saturate(0.7);
+}
+
+.panelInferior{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    z-index:60;
+}
+
+.contador{
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(12px);
+    color:white;
+    padding:12px 20px;
+    border-radius:20px;
+    text-shadow:0 2px 5px rgba(0,0,0,0.4);
+    font-weight:700;
+}
+
+.botonCrear{
+    border:none;
+    background:rgba(255,77,109,0.9);
+    color:white;
+    padding:12px 18px;
+    border-radius:20px;
+    font-weight:700;
+    cursor:pointer;
+    backdrop-filter:blur(10px);
+    box-shadow:0 6px 18px rgba(0,0,0,0.22);
+    transition:0.3s;
+}
+
+.botonCrear:hover{
+    transform:scale(1.05);
+}
+
+/* MODAL FORMULARIO */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+
+    z-index:5000;
+
+    justify-content:center;
+    align-items:center;
+    padding:18px;
+}
+
+.modalContenido{
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:28px;
+    padding:26px;
+    box-shadow:0 0 35px rgba(0,0,0,0.28);
+    position:relative;
+    position:relative;
+    z-index:5001;
+}
+
+.modalContenido h2{
+    color:#d6336c;
+    text-align:center;
+    margin-bottom:18px;
+}
+
+.cerrar{
+    position:absolute;
+    top:14px;
+    right:16px;
+    width:32px;
+    height:32px;
+    border:none;
+    border-radius:50%;
+    background:#fff0f3;
+    color:#c9184a;
+    font-size:20px;
+    cursor:pointer;
+}
+
+label{
+    display:block;
+    margin-top:12px;
+    margin-bottom:6px;
+    color:#c9184a;
+    font-weight:700;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:11px;
+    border-radius:15px;
+    border:1px solid #ffd6e8;
+    font-size:15px;
+    outline:none;
+}
+
+textarea{
+    min-height:100px;
+    resize:none;
+    line-height:1.5;
+}
+
+.botonGuardar{
+    width:100%;
+    margin-top:18px;
+    border:none;
+    background:#ff4d6d;
+    color:white;
+    padding:13px;
+    border-radius:20px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+@media(max-width:700px){
+    .header{
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .titulo{
+        font-size:28px;
+    }
+
+    .botones{
+        justify-content:center;
+    }
+
+    .boton{
+        padding:10px 14px;
+        font-size:14px;
+    }
+
+    .flor{
+        width:28px;
+        height:28px;
+    }
+
+    .panelInferior{
+        bottom:15px;
+        flex-direction:column;
+    }
+
+    .contador,
+    .botonCrear{
+        font-size:14px;
+        padding:10px 16px;
+    }
+}
+
+.vadaVisitante{
+    position:absolute;
+    width:54px;
+    text-align:center;
+    z-index:80;
+    animation:aparecerVada 0.8s ease-out;
+}
+
+.vadaOso{
+    font-size:34px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+}
+
+.vadaFrase{
+    margin-top:6px;
+    background:white;
+    color:#c9184a;
+    padding:8px 12px;
+    border-radius:16px;
+    font-size:13px;
+    font-weight:700;
+    min-width:190px;
+    transform:translateX(-35%);
+    box-shadow:0 8px 22px rgba(0,0,0,0.22);
+}
+
+@keyframes aparecerVada{
+    from{
+        opacity:0;
+        transform:translateY(10px) scale(0.9);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="header">
+    <div class="titulo">Nuestro Jardín 🌷</div>
+
+    <div class="botones">
+        <a href="Index.html" class="boton">❤️ Inicio</a>
+        <a href="cartas.html" class="boton">💌 Cartas</a>
+    </div>
+</div>
+
+<div class="jardin" id="jardin"></div>
+
+<div class="panelInferior">
+    <div class="contador" id="contadorFlores">
+        🌱 0 flores plantadas
+    </div>
+
+    <button class="botonCrear" onclick="abrirFormulario()">
+        Crear flor 🌷
+    </button>
+</div>
+
+<div class="modal" id="modalFlor" onclick="cerrarSiFuera(event)">
+    <div class="modalContenido">
+        <button class="cerrar" onclick="cerrarFormulario()">×</button>
+
+        <h2>Plantar una flor 🌷</h2>
+
+        <label>¿Quién planta la flor?</label>
+        <select id="autorFlor">
+            <option value="Dani">Dani</option>
+            <option value="Vanesa">Vanesa</option>
+        </select>
+
+        <label>Color</label>
+        <select id="colorFlor">
+		<option value="#ff8fab">Rosa 🌸</option>
+		<option value="#ff4d6d">Rojo ❤️</option>
+		<option value="#ffffff">Blanco 🤍</option>
+		<option value="#ffd166">Amarillo ☀️</option>
+		<option value="#c77dff">Morado 💜</option>
+        </select>
+
+        <label>Nota</label>
+        <textarea id="notaFlor" placeholder="Escribe una nota para plantar esta flor..."></textarea>
+
+        <button class="botonGuardar" onclick="plantarFlor()">
+            Plantar flor 🌱
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://wrbskndncjaqydebtbzx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WKLD7EYsaUU_htc4YMCCzw_MIMPdn6J";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DURACION_DIAS = 7;
+
+let flores = [];
+
+async function cargarFlores(){
+
+    const { data, error } = await supabaseClient
+        .from("flores")
+        .select("*")
+        .order("fecha", { ascending:true });
+
+    if(error){
+        console.log(error);
+        alert("No se pudieron cargar las flores.");
+        return;
+    }
+
+    flores = data.filter(flor => diasDesde(flor.fecha) < DURACION_DIAS);
+
+    renderizarJardin();
+}
+
+function diasDesde(fechaISO){
+    const ahora = new Date();
+    const fecha = new Date(fechaISO);
+
+    return Math.floor(
+        (ahora - fecha) / (1000 * 60 * 60 * 24)
+    );
+}
+
+function renderizarJardin(){
+
+    const jardin = document.getElementById("jardin");
+    jardin.innerHTML = "";
+
+    flores.forEach(flor => {
+        const elemento = crearElementoFlor(flor);
+        jardin.appendChild(elemento);
+    });
+
+    actualizarContador();
+}
+
+function crearElementoFlor(flor){
+
+    const div = document.createElement("div");
+    div.className = "flor";
+
+    const dias = diasDesde(flor.fecha);
+
+    if(dias >= 6){
+        div.classList.add("muriendo");
+    }
+
+    div.style.left = flor.x + "%";
+    div.style.bottom = flor.y + "%";
+
+    // Superposición natural:
+    // cuanto más abajo está, más delante aparece.
+    div.style.zIndex = Math.floor(flor.y * 10);
+
+    div.onclick = function(){
+        toggleFlor(this);
+    };
+
+    const delay = flor.delay ?? Math.random() * 3;
+
+    div.innerHTML = `
+        <div class="florAnimada" style="animation-delay:${delay}s;">
+            <div class="tallo"></div>
+
+            <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="18" fill="#ffd166"/>
+                <ellipse cx="50" cy="25" rx="14" ry="22" fill="${flor.color}"/>
+                <ellipse cx="25" cy="50" rx="22" ry="14" fill="${flor.color}"/>
+                <ellipse cx="75" cy="50" rx="22" ry="14" fill="${flor.color}"/>
+                <ellipse cx="50" cy="75" rx="14" ry="22" fill="${flor.color}"/>
+            </svg>
+        </div>
+
+        <div class="nota">
+            <h3>Flor plantada 🌷</h3>
+            <div class="meta">${escaparHTML(flor.autor)} · Día ${dias + 1} de 7</div>
+            <p>${escaparHTML(flor.nota)}</p>
+        </div>
+    `;
+
+    return div;
+}
+
+function abrirFormulario(){
+    document.getElementById("notaFlor").value = "";
+    document.getElementById("modalFlor").style.display = "flex";
+}
+
+function cerrarFormulario(){
+    document.getElementById("modalFlor").style.display = "none";
+}
+
+function cerrarSiFuera(event){
+    if(event.target.id === "modalFlor"){
+        cerrarFormulario();
+    }
+}
+
+async function plantarFlor(){
+
+    const autor = document.getElementById("autorFlor").value;
+    const color = document.getElementById("colorFlor").value;
+    const nota = document.getElementById("notaFlor").value.trim();
+
+    if(nota.length === 0){
+        alert("Escribe una nota antes de plantar la flor.");
+        return;
+    }
+
+    const nuevaFlor = {
+        autor: autor,
+        color: color,
+        nota: nota,
+        x: 18 + Math.random() * 62,
+        y: 12 + Math.random() * 15
+    };
+
+    const { error } = await supabaseClient
+        .from("flores")
+        .insert([nuevaFlor]);
+
+    if(error){
+        console.log(error);
+        alert("No se pudo plantar la flor.");
+        return;
+    }
+
+    cerrarFormulario();
+
+    await cargarFlores();
+}
+
+function toggleFlor(elemento){
+
+    document.querySelectorAll(".flor").forEach(flor => {
+        if(flor !== elemento){
+            flor.classList.remove("activa");
+        }
+    });
+
+    elemento.classList.toggle("activa");
+}
+
+function actualizarContador(){
+
+    document.getElementById("contadorFlores").innerText =
+        "🌱 " + flores.length + (flores.length === 1 ? " flor plantada" : " flores plantadas");
+}
+
+function escaparHTML(texto){
+
+    const div = document.createElement("div");
+    div.textContent = texto;
+
+    return div.innerHTML;
+}
+
+function mostrarVadaVisitante(){
+
+    const probabilidad = 0.25;
+
+    if(Math.random() > probabilidad){
+        return;
+    }
+
+    const frases = [
+        "Vada está paseando por el jardín ❤️",
+        "Vada ha venido a ver las flores 🌷",
+        "Vada está cuidando el jardín hoy 🧸"
+    ];
+
+    const frase =
+        frases[Math.floor(Math.random() * frases.length)];
+
+    const vada = document.createElement("div");
+    vada.className = "vadaVisitante";
+
+    vada.style.left = (20 + Math.random() * 55) + "%";
+    vada.style.bottom = (15 + Math.random() * 12) + "%";
+
+    vada.innerHTML = `
+        <div class="vadaOso">🧸</div>
+        <div class="vadaFrase">${frase}</div>
+    `;
+
+    document.getElementById("jardin").appendChild(vada);
+}
+
+cargarFlores().then(() => {
+    mostrarVadaVisitante();
+});
+</script>
+
+</body>
+</html>

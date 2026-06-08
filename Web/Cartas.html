@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuestras Cartas 💌</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    overflow:hidden;
+    height:100vh;
+    background:#050711;
+    font-family:Arial,sans-serif;
+    color:white;
+}
+
+.header{
+    position:fixed;
+    top:16px;
+    left:16px;
+    right:16px;
+    z-index:30;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    pointer-events:none;
+}
+
+.header h1{
+    color:#ffd6e8;
+    font-size:24px;
+    text-align:center;
+}
+
+.header .acciones{
+    display:flex;
+    gap:10px;
+    pointer-events:auto;
+}
+
+.header a,
+.header button{
+    text-decoration:none;
+    border:none;
+    background:#ff4d6d;
+    color:white;
+    padding:10px 15px;
+    border-radius:20px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.espacio{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    cursor:grab;
+}
+
+.universo{
+    position:absolute;
+    width:2600px;
+    height:1900px;
+    transform-origin:0 0;
+}
+
+.fondoEstrella{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    opacity:0.5;
+}
+
+.estrella{
+    position:absolute;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#fff3bf;
+    box-shadow:
+        0 0 10px #fff3bf,
+        0 0 24px #ffd6e8,
+        0 0 42px #ff4d6d;
+    cursor:pointer;
+    transform:translate(-50%,-50%);
+    transition:0.25s;
+}
+
+.estrella:hover{
+    transform:translate(-50%,-50%) scale(1.45);
+}
+
+.estrella::before,
+.estrella::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    background:#fff3bf;
+    transform:translate(-50%,-50%);
+    opacity:0.7;
+}
+
+.estrella::before{
+    width:34px;
+    height:2px;
+}
+
+.estrella::after{
+    width:2px;
+    height:34px;
+}
+
+.info{
+    position:absolute;
+    top:28px;
+    left:50%;
+    transform:translateX(-50%) scale(0.8);
+    background:rgba(255,255,255,0.95);
+    color:#c9184a;
+    padding:8px 12px;
+    border-radius:14px;
+    font-size:13px;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition:0.25s;
+    font-weight:bold;
+    text-align:center;
+}
+
+.estrella.visible .info{
+    opacity:1;
+    transform:translateX(-50%) scale(1);
+}
+
+.ayuda{
+    position:fixed;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    background:rgba(255,255,255,0.1);
+    color:#ffd6e8;
+    padding:9px 14px;
+    border-radius:20px;
+    font-size:13px;
+    text-align:center;
+}
+
+/* Estrella fugaz */
+.fugaz{
+    position:fixed;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:white;
+    box-shadow:
+        0 0 12px white,
+        0 0 28px #ff8fab,
+        0 0 45px #ff4d6d;
+    z-index:25;
+    pointer-events:none;
+}
+
+.fugaz::after{
+    content:"";
+    position:absolute;
+    right:10px;
+    top:5px;
+    width:110px;
+    height:2px;
+    background:linear-gradient(90deg,transparent,#ff8fab,white);
+    transform:rotate(0deg);
+    opacity:0.9;
+}
+
+/* Modales */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.58);
+    z-index:60;
+    justify-content:center;
+    align-items:center;
+    padding:18px;
+}
+
+.carta,
+.formulario{
+    background:white;
+    color:#444;
+    max-width:620px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    border-radius:28px;
+    padding:30px;
+    position:relative;
+    box-shadow:0 0 35px rgba(255,214,232,0.25);
+}
+
+.cerrar{
+    position:absolute;
+    top:14px;
+    right:16px;
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:50%;
+    background:#fff0f3;
+    color:#c9184a;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.carta h2,
+.formulario h2{
+    text-align:center;
+    color:#d6336c;
+    margin-bottom:8px;
+}
+
+.fecha{
+    text-align:center;
+    color:#999;
+    margin-bottom:22px;
+}
+
+.carta p{
+    line-height:1.7;
+    margin-bottom:14px;
+}
+
+label{
+    display:block;
+    margin-top:16px;
+    margin-bottom:7px;
+    color:#c9184a;
+    font-weight:bold;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:12px;
+    border-radius:16px;
+    border:1px solid #ffd6e8;
+    font-size:16px;
+    outline:none;
+}
+
+textarea{
+    min-height:150px;
+    resize:none;
+    line-height:1.5;
+}
+
+.botonGuardar{
+    margin-top:22px;
+    width:100%;
+    border:none;
+    background:#ff4d6d;
+    color:white;
+    padding:14px;
+    border-radius:22px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+@media(max-width:600px){
+    .header{
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .header h1{
+        font-size:21px;
+    }
+
+    .header .acciones{
+        width:100%;
+        justify-content:center;
+    }
+
+    .ayuda{
+        font-size:12px;
+        width:90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>Cartas en nuestro cielo 💌</h1>
+
+    <div class="acciones">
+        <a href="index.html">Inicio ❤️</a>
+        <button onclick="abrirFormulario()">Crear carta ✨</button>
+    </div>
+</div>
+
+<div id="espacio" class="espacio">
+    <div id="universo" class="universo"></div>
+</div>
+
+<div class="ayuda">
+    Arrastra para moverte · Zoom con rueda o pellizco · Acércate a una estrella
+</div>
+
+<div id="modalCarta" class="modal" onclick="cerrarSiFuera(event)">
+    <div class="carta">
+        <button class="cerrar" onclick="cerrarCarta()">×</button>
+        <h2 id="tituloCarta"></h2>
+        <div id="fechaCarta" class="fecha"></div>
+        <div id="textoCarta"></div>
+    </div>
+</div>
+
+<div id="modalFormulario" class="modal" onclick="cerrarSiFuera(event)">
+    <div class="formulario">
+        <button class="cerrar" onclick="cerrarFormulario()">×</button>
+
+        <h2>Crear una nueva carta ✨</h2>
+
+        <label>Título</label>
+        <input id="nuevoTitulo" placeholder="Ej: Un día especial">
+
+        <label>Tipo</label>
+        <select id="nuevoTipo">
+            <option value="⭐">Momento especial</option>
+            <option value="💌">Carta</option>
+            <option value="🥂">Aniversario</option>
+            <option value="🎂">Cumpleaños</option>
+            <option value="🌙">Pensamiento de noche</option>
+        </select>
+
+        <label>Autor</label>
+        <input id="nuevoAutor" placeholder="Dani o Vanesa">
+
+        <label>Texto</label>
+        <textarea id="nuevoTexto" placeholder="Escribe la carta..."></textarea>
+
+        <button class="botonGuardar" onclick="crearCarta()">
+            Crear estrella ✨
+        </button>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://wrbskndncjaqydebtbzx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WKLD7EYsaUU_htc4YMCCzw_MIMPdn6J";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const cartaInicial = {
+    tipo:"💌",
+    titulo:"La primera carta de nuestra historia",
+    autor:"Dani",
+    fecha:"2026-06-06T12:00:00+02:00",
+    x:1200,
+    y:850,
+    texto:
+`Vanesa, mi amor,
+
+Si me hubieran dicho hace unos meses que ibas a acabar siendo una de las personas más importantes de mis días, seguramente me habría costado creerlo.
+
+Al principio simplemente me parecías una chica muy interesante y tenía ganas de conocerte. Pero poco a poco empecé a darme cuenta de que cada día tenía ganas de hablar contigo, de saber cómo te había ido el día y de escuchar todas esas cosas que te pasaban y que me contabas con tanta ilusión.
+
+Nunca olvidaré cuando me dijiste que ibas a empezar a contarme tu día a día. Quizá para ti fue una frase más, pero para mí fue una de esas cosas pequeñas que significan mucho.
+
+Y digo todas esas cosas porque contigo hasta las conversaciones más simples terminan teniendo algo especial. Hemos pasado de hablar de estudios o trabajo a hablar de emojis, de ideas locas, de libros que ni existen todavía, de la vida, de nuestros planes y de mil tonterías que al final hacen que siempre tenga ganas de seguir hablando contigo.
+
+Sin darme cuenta, pasaste a formar parte de mis días de una forma que nunca había vivido con nadie.
+
+Y quizás por eso hay tantas cosas que contigo están siendo nuevas para mí. No porque sean cosas extraordinarias, sino porque las estoy viviendo contigo. Muchas de ellas son primeras veces para mí, y me hace feliz que seas tú la persona con la que las estoy compartiendo.
+
+También me gusta pensar en todas las cosas que hemos vivido en tan poco tiempo. Las quedadas, los paseos, las conversaciones que parecían durar cinco minutos aunque hubieran pasado horas, los buenos momentos, los momentos tranquilos y todos esos pequeños detalles que se han ido quedando conmigo sin que me diera cuenta.
+
+Todavía me hace gracia pensar que una chica que decía que no era de quedar con gente acabó convirtiéndose en la persona con la que más me gusta pasar el tiempo.
+
+Y aunque este peluche sea solo un detalle, también quería aprovechar para darte las gracias. Gracias por haber tenido paciencia con mis tonterías, por entenderme cuando ni yo mismo me entendía, por aceptar mis horarios imposibles y por hacer que una historia que empezó viéndonos solo los fines de semana por la distancia acabara convirtiéndose en algo tan bonito.
+
+Y hay otra cosa que quiero que sepas. Muchas veces me has dicho que eres intensa, pero a mí me gusta que seas así. Me gusta que me cuentes tu día, que me mandes mensajes cuando te acuerdas de mí, que me envíes reels de Instagram, que compartas conmigo las cosas que te hacen gracia o que te llaman la atención. Me gusta porque siento que sale de ti, que lo haces de corazón y porque me haces sentir parte de tu vida, incluso en los detalles más pequeños.
+
+No cambies esa intensidad. Es una de las cosas que más me gustan de ti.
+
+Y también hay algo más que quiero decirte. Hace poco tuvimos nuestro primer malentendido. No quiero volver a darle vueltas porque sé que ya lo solucionamos, pero sí quiero que sepas una cosa. Si alguna vez me equivoco, quiero asumirlo y aprender de ello. Quiero seguir mejorando contigo y hacer las cosas cada día un poco mejor que el anterior.
+
+Y sobre todo, me gustaría que las lágrimas que compartamos sean por felicidad, por emoción o por momentos bonitos, no por palabras mías que te hayan hecho daño.
+
+Todavía me sigue haciendo ilusión ver un mensaje tuyo, igual que al principio. Y creo que eso es una de las cosas más bonitas que me han pasado contigo.
+
+No sé cuántas aventuras nos esperan, ni cuántas conversaciones absurdas tendremos todavía, pero sí sé que tengo muchas ganas de seguir viviendo todo eso contigo.
+
+Gracias por haber decidido compartir tu tiempo conmigo.
+
+Dani ❤️`
+};
+
+let cartas = [];
+
+const universo = document.getElementById("universo");
+const espacio = document.getElementById("espacio");
+
+let escala = 0.55;
+let posX = -520;
+let posY = -360;
+let arrastrando = false;
+let inicioX = 0;
+let inicioY = 0;
+
+async function cargarCartas(){
+    const { data, error } = await supabaseClient
+        .from("cartas")
+        .select("*")
+        .order("fecha", { ascending:true });
+
+    if(error){
+        console.log(error);
+        alert("No se pudieron cargar las cartas.");
+        return;
+    }
+
+    if(data.length === 0){
+        await crearCartaInicial();
+        return;
+    }
+
+    cartas = data.map((carta, index) => ({
+        ...carta,
+        numero: index + 1,
+        fechaTexto: formatearFecha(carta.fecha)
+    }));
+
+    repintarUniverso();
+}
+
+async function crearCartaInicial(){
+    const { error } = await supabaseClient
+        .from("cartas")
+        .insert([cartaInicial]);
+
+    if(error){
+        console.log(error);
+        alert("No se pudo crear la carta inicial.");
+        return;
+    }
+
+    await cargarCartas();
+}
+
+function aplicarTransform(){
+    universo.style.transform =
+        `translate(${posX}px, ${posY}px) scale(${escala})`;
+
+    actualizarVisibilidadInfo();
+}
+
+function crearFondo(){
+    universo.innerHTML = "";
+
+    for(let i=0;i<230;i++){
+        const e = document.createElement("div");
+        e.className = "fondoEstrella";
+        e.style.left = Math.random()*2600 + "px";
+        e.style.top = Math.random()*1900 + "px";
+        e.style.opacity = 0.15 + Math.random()*0.75;
+        universo.appendChild(e);
+    }
+}
+
+function pintarCartas(){
+    cartas.forEach((carta)=>{
+        const estrella = document.createElement("div");
+        estrella.className = "estrella";
+        estrella.style.left = carta.x + "px";
+        estrella.style.top = carta.y + "px";
+        estrella.onclick = () => abrirCarta(carta);
+
+        estrella.innerHTML = `
+            <div class="info">
+                ${carta.tipo} Carta #${carta.numero}<br>${carta.fechaTexto}
+            </div>
+        `;
+
+        universo.appendChild(estrella);
+    });
+
+    actualizarVisibilidadInfo();
+}
+
+function repintarUniverso(){
+    crearFondo();
+    pintarCartas();
+    aplicarTransform();
+}
+
+function actualizarVisibilidadInfo(){
+    document.querySelectorAll(".estrella").forEach(estrella=>{
+        if(escala >= 0.9){
+            estrella.classList.add("visible");
+        }else{
+            estrella.classList.remove("visible");
+        }
+    });
+}
+
+function abrirCarta(carta){
+    document.getElementById("tituloCarta").innerText = carta.titulo;
+
+    document.getElementById("fechaCarta").innerText =
+        `${carta.tipo} Carta #${carta.numero} · ${carta.fechaTexto} · ${carta.autor}`;
+
+    const parrafos = carta.texto
+        .split("\n")
+        .filter(linea => linea.trim() !== "");
+
+    document.getElementById("textoCarta").innerHTML =
+        parrafos.map(p => `<p>${escaparHTML(p)}</p>`).join("");
+
+    document.getElementById("modalCarta").style.display = "flex";
+}
+
+function cerrarCarta(){
+    document.getElementById("modalCarta").style.display = "none";
+}
+
+function abrirFormulario(){
+    document.getElementById("nuevoTitulo").value = "";
+    document.getElementById("nuevoTipo").value = "⭐";
+    document.getElementById("nuevoAutor").value = "";
+    document.getElementById("nuevoTexto").value = "";
+
+    document.getElementById("modalFormulario").style.display = "flex";
+}
+
+function cerrarFormulario(){
+    document.getElementById("modalFormulario").style.display = "none";
+}
+
+function cerrarSiFuera(event){
+    if(event.target.id === "modalCarta"){
+        cerrarCarta();
+    }
+
+    if(event.target.id === "modalFormulario"){
+        cerrarFormulario();
+    }
+}
+
+async function crearCarta(){
+    const titulo = document.getElementById("nuevoTitulo").value.trim();
+    const tipo = document.getElementById("nuevoTipo").value;
+    const autor = document.getElementById("nuevoAutor").value.trim();
+    const texto = document.getElementById("nuevoTexto").value.trim();
+
+    if(!titulo || !autor || !texto){
+        alert("Rellena título, autor y texto.");
+        return;
+    }
+
+    const nueva = {
+        tipo: tipo,
+        titulo: titulo,
+        autor: autor,
+        texto: texto,
+        x: 250 + Math.random()*2100,
+        y: 230 + Math.random()*1400
+    };
+
+    const { data, error } = await supabaseClient
+        .from("cartas")
+        .insert([nueva])
+        .select()
+        .single();
+
+    if(error){
+        console.log(error);
+        alert("No se pudo crear la carta.");
+        return;
+    }
+
+    cerrarFormulario();
+
+    await cargarCartas();
+
+    const cartaCreada = {
+        ...data,
+        numero: cartas.length,
+        fechaTexto: formatearFecha(data.fecha)
+    };
+
+    lanzarEstrellaFugaz(cartaCreada);
+}
+
+function lanzarEstrellaFugaz(carta){
+    const fugaz = document.createElement("div");
+    fugaz.className = "fugaz";
+
+    const destinoX = posX + carta.x * escala;
+    const destinoY = posY + carta.y * escala;
+
+    const inicioFX = -80;
+    const inicioFY = 120;
+
+    fugaz.style.left = inicioFX + "px";
+    fugaz.style.top = inicioFY + "px";
+
+    document.body.appendChild(fugaz);
+
+    fugaz.animate([
+        {
+            transform:`translate(0,0) scale(0.8)`,
+            opacity:1
+        },
+        {
+            transform:`translate(${destinoX - inicioFX}px, ${destinoY - inicioFY}px) scale(1.2)`,
+            opacity:0
+        }
+    ],{
+        duration:1600,
+        easing:"cubic-bezier(.25,.8,.25,1)"
+    });
+
+    setTimeout(()=>{
+        fugaz.remove();
+    },1700);
+}
+
+function formatearFecha(fechaISO){
+    const fecha = new Date(fechaISO);
+
+    return fecha.toLocaleDateString("es-ES",{
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+    });
+}
+
+function escaparHTML(texto){
+    const div = document.createElement("div");
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+/* Ratón */
+espacio.addEventListener("mousedown", e=>{
+    arrastrando = true;
+    espacio.style.cursor = "grabbing";
+    inicioX = e.clientX - posX;
+    inicioY = e.clientY - posY;
+});
+
+window.addEventListener("mouseup", ()=>{
+    arrastrando = false;
+    espacio.style.cursor = "grab";
+});
+
+window.addEventListener("mousemove", e=>{
+    if(!arrastrando) return;
+    posX = e.clientX - inicioX;
+    posY = e.clientY - inicioY;
+    aplicarTransform();
+});
+
+espacio.addEventListener("wheel", e=>{
+    e.preventDefault();
+
+    const zoomAnterior = escala;
+
+    if(e.deltaY < 0){
+        escala += 0.08;
+    }else{
+        escala -= 0.08;
+    }
+
+    escala = Math.min(Math.max(escala,0.35),1.7);
+
+    const rect = espacio.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    posX = mouseX - (mouseX - posX) * (escala / zoomAnterior);
+    posY = mouseY - (mouseY - posY) * (escala / zoomAnterior);
+
+    aplicarTransform();
+},{passive:false});
+
+/* Móvil */
+let distanciaInicial = null;
+let escalaInicial = escala;
+
+espacio.addEventListener("touchstart", e=>{
+    if(e.touches.length === 1){
+        arrastrando = true;
+        inicioX = e.touches[0].clientX - posX;
+        inicioY = e.touches[0].clientY - posY;
+    }
+
+    if(e.touches.length === 2){
+        distanciaInicial = distancia(e.touches[0], e.touches[1]);
+        escalaInicial = escala;
+    }
+},{passive:false});
+
+espacio.addEventListener("touchmove", e=>{
+    e.preventDefault();
+
+    if(e.touches.length === 1 && arrastrando){
+        posX = e.touches[0].clientX - inicioX;
+        posY = e.touches[0].clientY - inicioY;
+        aplicarTransform();
+    }
+
+    if(e.touches.length === 2){
+        const nuevaDistancia = distancia(e.touches[0], e.touches[1]);
+        escala = escalaInicial * (nuevaDistancia / distanciaInicial);
+        escala = Math.min(Math.max(escala,0.35),1.7);
+        aplicarTransform();
+    }
+},{passive:false});
+
+espacio.addEventListener("touchend", ()=>{
+    arrastrando = false;
+    distanciaInicial = null;
+});
+
+function distancia(a,b){
+    const dx = a.clientX - b.clientX;
+    const dy = a.clientY - b.clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+cargarCartas();
+</script>
+
+</body>
+</html>
